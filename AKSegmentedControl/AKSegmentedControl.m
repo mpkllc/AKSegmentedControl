@@ -78,9 +78,8 @@ static CGFloat const kAKButtonSeparatorWidth = 1.0;
     NSUInteger buttonsCount    = _buttonsArray.count;
     NSUInteger separtorsNumber = buttonsCount - 1;
     CGFloat separatorWidth     = (_separatorImage != nil) ? _separatorImage.size.width : kAKButtonSeparatorWidth;
-    CGFloat buttonWidth        = floorf((CGRectGetWidth(contentRect) - (separtorsNumber * separatorWidth)) / buttonsCount);
     CGFloat buttonHeight       = CGRectGetHeight(contentRect);
-    CGSize buttonSize          = CGSizeMake(buttonWidth, buttonHeight);
+    CGSize buttonSize          = CGSizeMake(CGRectGetWidth(contentRect), buttonHeight);
     
     __block CGFloat offsetX      = CGRectGetMinX(contentRect);
     __block CGFloat offsetY      = CGRectGetMinY(contentRect);
@@ -88,12 +87,18 @@ static CGFloat const kAKButtonSeparatorWidth = 1.0;
     __block CGFloat dButtonWidth = 0;
     __block NSUInteger increment = 0;
     
+    __block CGFloat minimumButtonsWidth = 0;
+    
+    [_buttonsArray enumerateObjectsUsingBlock:^(UIButton *button, NSUInteger idx, BOOL * _Nonnull stop) {
+        minimumButtonsWidth += [button sizeThatFits:buttonSize].width;
+    }];
+    
     [_buttonsArray enumerateObjectsUsingBlock:^(UIButton *button, NSUInteger idx, BOOL *stop) {
         if (![button isKindOfClass:UIButton.class]) {
             return;
         }
         
-        dButtonWidth = buttonSize.width;
+        dButtonWidth = floorf((CGRectGetWidth(contentRect) - (separtorsNumber * separatorWidth)) * ([button sizeThatFits:buttonSize].width / minimumButtonsWidth));
         
         if (spaceLeft != 0) {
             dButtonWidth++;
